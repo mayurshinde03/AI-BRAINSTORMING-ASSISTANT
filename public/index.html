@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Brainstorming Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-lightbulb"></i>
+                    <h1>AI Brainstorming Assistant</h1>
+                </div>
+                <div class="header-controls">
+                    <div class="theme-toggle-container">
+                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                            <div class="theme-toggle-track">
+                                <div class="theme-toggle-thumb">
+                                    <i class="fas fa-sun light-icon"></i>
+                                    <i class="fas fa-moon dark-icon"></i>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="session-info">
+                        <span class="session-id">Session: <span id="currentSession">Default</span></span>
+                        <div class="connected-users">
+                            <i class="fas fa-users"></i>
+                            <span id="userCount">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-masks-theater"></i> Creative Personas</h3>
+                    <div class="persona-list" id="personaList">
+                        <!-- Personas will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-chart-bar"></i> Idea Scoring</h3>
+                    <div class="scoring-criteria" id="scoringCriteria">
+                        <!-- Scoring criteria will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3><i class="fas fa-history"></i> Recent Ideas</h3>
+                    <div class="recent-ideas" id="recentIdeas">
+                        <!-- Recent ideas will be loaded here -->
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Central Workspace -->
+            <div class="workspace">
+                <!-- Tab Navigation -->
+                <div class="tab-navigation">
+                    <button class="tab-btn active" data-tab="brainstorm">
+                        <i class="fas fa-brain"></i> Brainstorm
+                    </button>
+                    <button class="tab-btn" data-tab="mindmap">
+                        <i class="fas fa-project-diagram"></i> Mind Map
+                    </button>
+                    <button class="tab-btn" data-tab="ideas">
+                        <i class="fas fa-list"></i> Ideas Board
+                    </button>
+                </div>
+
+                <!-- Brainstorm Tab -->
+                <div class="tab-content active" id="brainstorm-tab">
+                    <div class="brainstorm-container">
+                        <div class="prompt-section">
+                            <div class="context-input">
+                                <label for="context">Context (Optional):</label>
+                                <input type="text" id="context" placeholder="e.g., Mobile app for students, Marketing campaign, Product feature...">
+                            </div>
+                            
+                            <div class="prompt-input">
+                                <label for="brainstormPrompt">Challenge or Topic:</label>
+                                <textarea id="brainstormPrompt" placeholder="Describe what you want to brainstorm about..."></textarea>
+                            </div>
+
+                            <div class="persona-selection">
+                                <label>Selected Persona:</label>
+                                <select id="selectedPersona">
+                                    <option value="">Choose a persona...</option>
+                                </select>
+                            </div>
+
+                            <button id="generateIdeas" class="generate-btn">
+                                <i class="fas fa-magic"></i> Generate Ideas
+                            </button>
+                        </div>
+
+                        <div class="ideas-output" id="ideasOutput">
+                            <!-- Generated ideas will appear here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mind Map Tab -->
+                <div class="tab-content" id="mindmap-tab">
+                    <div class="mindmap-container">
+                        <div class="mindmap-controls">
+                            <input type="text" id="mindmapTopic" placeholder="Enter central topic...">
+                            <button id="createMindmap">
+                                <i class="fas fa-plus"></i> Create Mind Map
+                            </button>
+                            <button id="expandMindmap">
+                                <i class="fas fa-expand"></i> AI Expand
+                            </button>
+                        </div>
+                        <div class="mindmap-canvas" id="mindmapCanvas">
+                            <!-- Mind map will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ideas Board Tab -->
+                <div class="tab-content" id="ideas-tab">
+                    <div class="ideas-board">
+                        <div class="board-filters">
+                            <select id="sortBy">
+                                <option value="timestamp">Sort by: Recent</option>
+                                <option value="score">Sort by: Score</option>
+                                <option value="persona">Sort by: Persona</option>
+                            </select>
+                            <button id="exportIdeas">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        <div class="ideas-grid" id="ideasGrid">
+                            <!-- Ideas cards will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Modals -->
+        <div class="modal" id="scoringModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Score This Idea</h3>
+                <div class="scoring-form" id="scoringForm">
+                    <!-- Scoring form will be generated here -->
+                </div>
+                <button id="submitScore">Submit Score</button>
+            </div>
+        </div>
+
+        <div class="modal" id="sessionModal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Join Collaboration Session</h3>
+                <input type="text" id="sessionInput" placeholder="Enter session ID or create new">
+                <button id="joinSession">Join Session</button>
+                <button id="createSession">Create New Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-cog fa-spin"></i>
+            <p>AI is thinking...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
