@@ -6,9 +6,6 @@ const http = require('http');
 const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
-// Add the GEMINI_MODEL constant
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -90,7 +87,7 @@ app.post('/api/brainstorm', async (req, res) => {
     }
 
     // Get the generative model using correct method
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const fullPrompt = `${selectedPersona.prompt}
 
@@ -212,7 +209,7 @@ app.post('/api/mindmap-expand', async (req, res) => {
   try {
     const { topic, currentBranches } = req.body;
 
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `You are helping expand a mind map for the topic: "${topic}"
 
@@ -267,5 +264,5 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, () => {
   console.log(`AI Brainstorming Server running on port ${PORT}`);
-  console.log(`Using Gemini AI model: ${GEMINI_MODEL}`);
+  console.log(`Using Gemini AI model: gemini-1.5-flash`);
 });
